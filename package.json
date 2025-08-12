@@ -1,0 +1,27 @@
+{
+  "name": "yarn-community-threads",
+  "version": "1.0.0",
+  "description": "YARN.com - Community Story Threads: A platform for preserving community stories and wisdom",
+  "scripts": {
+    "install-all": "cd backend && npm install && cd ../frontend && npm install",
+    "dev": "concurrently \"cd backend && npm run dev\" \"cd frontend && npm run dev\"",
+    "start-backend": "cd backend && npm start",
+    "start-frontend": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build"
+  },
+  "keywords": [
+    "community",
+    "stories",
+    "experiences",
+    "mern",
+    "mongodb",
+    "express",
+    "react",
+    "nodejs"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}
