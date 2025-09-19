@@ -85,27 +85,45 @@ function ThreadView() {
         </div>
       </div>
 
-      <div style={{ marginTop: '2rem' }}>
-        <h2>Community Stories ({strands.length})</h2>
+      <div className="strands-section">
+        <div className="section-header">
+          <h2 className="strands-title">Community Stories</h2>
+          <span className="strand-count">({strands.length})</span>
+        </div>
         
         {strands.length === 0 ? (
-          <div className="card">
-            <p>No stories have been shared yet. Be the first to contribute!</p>
-            <Link to={`/threads/${id}/add-strand`} className="btn">
-              Share Your Story
-            </Link>
+          <div className="card empty-state">
+            <div className="empty-state-content">
+              <p>No stories have been shared yet. Be the first to contribute!</p>
+              <Link to={`/threads/${id}/add-strand`} className="btn">
+                Share Your Story
+              </Link>
+            </div>
           </div>
         ) : (
-          <div>
-            {strands.map((strand) => (
-              <div key={strand._id} className="card strand">
-                <div className="strand-meta">
-                  <strong>{strand.contributorName}</strong> shared on {formatDate(strand.createdAt)}
+          <div className="strands-container">
+            {strands.map((strand, index) => (
+              <div key={strand._id} className="card strand-card">
+                <div className="strand-header">
+                  <div className="strand-contributor">
+                    <span className="contributor-name">{strand.contributorName}</span>
+                    <span className="contribution-label">shared their story</span>
+                  </div>
+                  <div className="strand-timestamp">
+                    {formatDate(strand.createdAt)}
+                  </div>
                 </div>
+                
+                <div className="strand-separator"></div>
+                
                 <div className="strand-content">
                   {strand.content.split('\n').map((paragraph, index) => (
-                    <p key={index}>{paragraph}</p>
+                    <p key={index} className="strand-paragraph">{paragraph}</p>
                   ))}
+                </div>
+                
+                <div className="strand-number">
+                  Story #{index + 1}
                 </div>
               </div>
             ))}
