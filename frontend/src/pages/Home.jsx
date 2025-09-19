@@ -51,49 +51,56 @@ function Home() {
       </div>
 
       {threads.length === 0 ? (
-        <div className="card">
-          <h3>No threads yet</h3>
-          <p>Be the first to start a community story thread!</p>
-          <Link to="/create-thread" className="btn">
-            Create the First Thread
-          </Link>
+        <div className="card empty-state">
+          <div className="empty-state-content">
+            <h3>No threads yet</h3>
+            <p>Be the first to start a community story thread!</p>
+            <Link to="/create-thread" className="btn">
+              Create the First Thread
+            </Link>
+          </div>
         </div>
       ) : (
-        <div>
+        <div className="threads-grid">
           {threads.map((thread) => (
-            <div key={thread._id} className="card">
-              <h2>
-                <Link 
-                  to={`/threads/${thread._id}`}
-                  style={{ color: '#2c3e50', textDecoration: 'none' }}
-                >
-                  {thread.title}
-                </Link>
-              </h2>
-              <p>{thread.description}</p>
-              
-              {thread.tags && thread.tags.length > 0 && (
-                <div className="tags">
-                  {thread.tags.map((tag, index) => (
-                    <span key={index} className="tag">
-                      #{tag}
-                    </span>
-                  ))}
+            <div key={thread._id} className="card thread-card">
+              <div className="thread-header">
+                <h2 className="thread-title">
+                  <Link 
+                    to={`/threads/${thread._id}`}
+                    className="thread-title-link"
+                  >
+                    {thread.title}
+                  </Link>
+                </h2>
+                <div className="thread-meta">
+                  <span className="thread-date">
+                    Created on {formatDate(thread.createdAt)}
+                  </span>
                 </div>
-              )}
-
-              <div className="thread-meta">
-                Created on {formatDate(thread.createdAt)}
+              </div>
+              
+              <div className="thread-body">
+                <p className="thread-description">{thread.description}</p>
+                
+                {thread.tags && thread.tags.length > 0 && (
+                  <div className="thread-tags">
+                    {thread.tags.map((tag, index) => (
+                      <span key={index} className="tag">
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              <div style={{ marginTop: '1rem' }}>
-                <Link to={`/threads/${thread._id}`} className="btn">
+              <div className="thread-actions">
+                <Link to={`/threads/${thread._id}`} className="btn btn-primary">
                   View Thread
                 </Link>
                 <Link 
                   to={`/threads/${thread._id}/add-strand`} 
                   className="btn btn-secondary"
-                  style={{ marginLeft: '1rem' }}
                 >
                   Add Your Story
                 </Link>
