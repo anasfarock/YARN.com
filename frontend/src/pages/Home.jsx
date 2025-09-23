@@ -1,18 +1,22 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { ThreadsGridSkeleton } from '../components/SkeletonLoader';
 
 function Home() {
   const [threads, setThreads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     fetchThreads();
-  }, []);
+  }, [retryCount]);
 
   const fetchThreads = async () => {
     try {
+      setLoading(true);
+      setError('');
       const response = await axios.get('/api/threads');
       setThreads(response.data);
     } catch (err) {
@@ -21,6 +25,10 @@ function Home() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRetry = () => {
+    setRetryCount(prev => prev + 1);
   };
 
   const formatDate = (dateString) => {
@@ -32,7 +40,22 @@ function Home() {
   };
 
   if (loading) {
-    return <div className="loading">Loading threads...</div>;
+    return (
+      <div>
+        <div className="page-header">
+          <h1>Community Story Threads</h1>
+          <p>Discover and contribute to threads that preserve our collective wisdom and experiences</p>
+        </div>
+
+        <div style={{ marginBottom: '2rem' }}>
+          <Link to="/create-thread" className="btn">
+            Start a New Thread
+          </Link>
+        </div>
+
+        <ThreadsGridSkeleton count={6} />
+      </div>
+    );
   }
 
   return (
@@ -42,7 +65,18 @@ function Home() {
         <p>Discover and contribute to threads that preserve our collective wisdom and experiences</p>
       </div>
 
-      {error && <div className="error">{error}</div>}
+      {error && (
+        <div className="error">
+          {error}
+          <button 
+            onClick={handleRetry} 
+            className="btn btn-secondary" 
+            style={{ marginLeft: '1rem', padding: '0.5rem 1rem' }}
+          >
+            Try Again
+          </button>
+        </div>
+      )}
 
       <div style={{ marginBottom: '2rem' }}>
         <Link to="/create-thread" className="btn">
@@ -61,9 +95,9 @@ function Home() {
           </div>
         </div>
       ) : (
-        <div className="threads-grid">
-          {threads.map((thread) => (
-            <div key={thread._id} className="card thread-card">
+        <div className="threads-grid loaded-content">
+          {threads.map((thread, index) => (
+            <div key={thread._id} className={`card thread-card content-fade-in`} style={{ animationDelay: `${index * 0.1}s` }}>
               <div className="thread-header">
                 <h2 className="thread-title">
                   <Link 

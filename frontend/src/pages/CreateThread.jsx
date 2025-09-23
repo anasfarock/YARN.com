@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import { ButtonWithLoading, FormLoadingOverlay } from '../components/SkeletonLoader';
 
 function CreateThread() {
   const navigate = useNavigate();
@@ -167,7 +168,8 @@ function CreateThread() {
 
       {error && <div className="error">{error}</div>}
 
-      <div className="card">
+      <div className="card" style={{ position: 'relative' }}>
+        <FormLoadingOverlay isVisible={loading} message="Creating your thread..." />
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="title">Thread Title *</label>
@@ -237,9 +239,14 @@ function CreateThread() {
           </div>
 
           <div style={{ marginTop: '2rem' }}>
-            <button type="submit" className="btn" disabled={loading}>
-              {loading ? 'Creating Thread...' : 'Create Thread'}
-            </button>
+            <ButtonWithLoading 
+              type="submit" 
+              className="btn" 
+              loading={loading}
+              loadingText="Creating Thread..."
+            >
+              Create Thread
+            </ButtonWithLoading>
             <Link to="/" className="btn btn-secondary" style={{ marginLeft: '1rem' }}>
               Cancel
             </Link>
