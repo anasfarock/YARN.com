@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
+import { ThreadDetailSkeleton, StrandsListSkeleton } from '../components/SkeletonLoader';
 
 function ThreadView() {
   const { id } = useParams();
@@ -8,13 +9,16 @@ function ThreadView() {
   const [strands, setStrands] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     fetchThreadAndStrands();
-  }, [id]);
+  }, [id, retryCount]);
 
   const fetchThreadAndStrands = async () => {
     try {
+      setLoading(true);
+      setError('');
       const [threadResponse, strandsResponse] = await Promise.all([
         axios.get(`/api/threads/${id}`),
         axios.get(`/api/strands/thread/${id}`)
@@ -30,6 +34,10 @@ function ThreadView() {
     }
   };
 
+  const handleRetry = () => {
+    setRetryCount(prev => prev + 1);
+  };
+
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -41,11 +49,41 @@ function ThreadView() {
   };
 
   if (loading) {
-    return <div className="loading">Loading thread...</div>;
+    return (
+      <div>
+        <div style={{ marginBottom: '2rem' }}>
+          <Link to="/" className="btn btn-secondary">
+            ← Back to All Threads
+          </Link>
+        </div>
+
+        <ThreadDetailSkeleton />
+
+        <div className="strands-section">
+          <div className="section-header">
+            <h2 className="strands-title">Community Stories</h2>
+            <span className="strand-count">(...)</span>
+          </div>
+          
+          <StrandsListSkeleton count={3} />
+        </div>
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="error">{error}</div>;
+    return (
+      <div className="error">
+        {error}
+        <button 
+          onClick={handleRetry} 
+          className="btn btn-secondary" 
+          style={{ marginLeft: '1rem', padding: '0.5rem 1rem' }}
+        >
+          Try Again
+        </button>
+      </div>
+    );
   }
 
   if (!thread) {
@@ -60,7 +98,7 @@ function ThreadView() {
         </Link>
       </div>
 
-      <div className="card">
+      <div className="card content-fade-in">
         <h1>{thread.title}</h1>
         <p>{thread.description}</p>
         
@@ -101,9 +139,9 @@ function ThreadView() {
             </div>
           </div>
         ) : (
-          <div className="strands-container">
+          <div className="strands-container loaded-content">
             {strands.map((strand, index) => (
-              <div key={strand._id} className="card strand-card">
+              <div key={strand._id} className={`card strand-card content-fade-in`} style={{ animationDelay: `${index * 0.1}s` }}>
                 <div className="strand-header">
                   <div className="strand-contributor">
                     <span className="contributor-name">{strand.contributorName}</span>

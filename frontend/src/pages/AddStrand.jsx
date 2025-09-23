@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import { ButtonWithLoading, FormLoadingOverlay, PageLoadingState } from '../components/SkeletonLoader';
 
 function AddStrand() {
   const { id } = useParams();
@@ -13,6 +14,7 @@ function AddStrand() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [fetchError, setFetchError] = useState('');
+  const [threadLoading, setThreadLoading] = useState(true);
   const [fieldErrors, setFieldErrors] = useState({});
   const [validFields, setValidFields] = useState({});
   const [touched, setTouched] = useState({});
@@ -23,11 +25,14 @@ function AddStrand() {
 
   const fetchThread = async () => {
     try {
+      setThreadLoading(true);
       const response = await axios.get(`/api/threads/${id}`);
       setThread(response.data);
     } catch (err) {
       setFetchError('Failed to fetch thread data');
       console.error('Error fetching thread:', err);
+    } finally {
+      setThreadLoading(false);
     }
   };
 
@@ -150,8 +155,12 @@ function AddStrand() {
     return <div className="error">{fetchError}</div>;
   }
 
+  if (threadLoading) {
+    return <PageLoadingState message="Loading thread details..." />;
+  }
+
   if (!thread) {
-    return <div className="loading">Loading thread...</div>;
+    return <div className="error">Thread not found</div>;
   }
 
   return (
@@ -184,7 +193,8 @@ function AddStrand() {
 
       {error && <div className="error">{error}</div>}
 
-      <div className="card">
+      <div className="card" style={{ position: 'relative' }}>
+        <FormLoadingOverlay isVisible={loading} message="Adding your story..." />
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="contributorName">Your Name *</label>
@@ -233,9 +243,14 @@ function AddStrand() {
           </div>
 
           <div style={{ marginTop: '2rem' }}>
-            <button type="submit" className="btn" disabled={loading}>
-              {loading ? 'Adding Story...' : 'Add My Story'}
-            </button>
+            <ButtonWithLoading 
+              type="submit" 
+              className="btn" 
+              loading={loading}
+              loadingText="Adding Story..."
+            >
+              Add My Story
+            </ButtonWithLoading>
             <Link 
               to={`/threads/${id}`} 
               className="btn btn-secondary" 
