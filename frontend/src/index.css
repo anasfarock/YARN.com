@@ -112,6 +112,12 @@ body {
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.4);
 }
 
+.btn:focus-visible {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.5);
+}
+
 .btn:active {
   transform: translateY(1px);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
@@ -139,28 +145,162 @@ body {
   box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.4);
 }
 
+.btn-secondary:focus-visible {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.5);
+}
+
 .form-group {
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .form-group label {
   display: block;
   margin-bottom: 0.5rem;
-  font-weight: bold;
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.875rem;
+  letter-spacing: 0.025em;
 }
 
-.form-group input,
-.form-group textarea {
+.input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.form-input {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: 0.875rem 1rem;
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
   font-size: 1rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: #ffffff;
+  line-height: 1.5;
 }
 
-.form-group textarea {
+.form-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  background-color: #fefefe;
+}
+
+.form-input:hover:not(:focus) {
+  border-color: #9ca3af;
+}
+
+.form-input.error {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.form-input.error:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+.form-input.valid {
+  border-color: #10b981;
+  background-color: #f0fdf4;
+  padding-right: 3rem; /* Make space for checkmark */
+}
+
+.form-input.valid:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.validation-icon {
+  position: absolute;
+  right: 1rem;
+  pointer-events: none;
+  font-weight: bold;
+  font-size: 1.125rem;
+}
+
+.validation-icon.valid {
+  color: #10b981;
+}
+
+.error-message {
+  display: block !important;
+  margin-top: 0.5rem;
+  color: #dc2626 !important;
+  font-size: 0.875rem;
+  font-weight: 600 !important;
+  line-height: 1.4;
+  background-color: transparent !important;
+  text-shadow: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.field-hint {
+  display: block;
+  margin-top: 0.5rem;
+  color: #6b7280;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+/* Additional error message styling to ensure visibility */
+.form-group .error-message,
+.input-container + .error-message,
+div .error-message,
+.card .error-message,
+form .error-message,
+* .error-message {
+  color: #dc2626 !important;
+  background-color: transparent !important;
+  text-shadow: none !important;
+  opacity: 1 !important;
+  font-weight: 600 !important;
+}
+
+/* Force error message color with highest specificity */
+div.error-message,
+span.error-message,
+p.error-message {
+  color: #b91c1c !important;
+  background: transparent !important;
+  text-shadow: none !important;
+}
+
+/* Enhanced error styling with better contrast */
+.error-message::before {
+  content: "⚠ ";
+  font-weight: bold;
+  margin-right: 0.25rem;
+}
+
+/* Ensure error messages are always visible in forms */
+.form-input.error + .error-message,
+.form-input[aria-invalid="true"] + .error-message {
+  color: #b91c1c !important;
+  font-weight: 600;
+  padding: 0.25rem 0;
+}
+
+.form-group textarea.form-input {
   resize: vertical;
-  min-height: 100px;
+  min-height: 120px;
+  line-height: 1.6;
+}
+
+/* Focus states for better accessibility */
+.form-input:focus-visible {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+/* Placeholder styling */
+.form-input::placeholder {
+  color: #9ca3af;
+  opacity: 1;
 }
 
 .tags {
@@ -410,7 +550,7 @@ body {
 
 .error {
   background-color: #e74c3c;
-  color: white;
+  color: black;
   padding: 1rem;
   border-radius: 4px;
   margin-bottom: 1rem;
@@ -497,4 +637,44 @@ body {
   .strands-title {
     font-size: 1.5rem;
   }
+  
+  .form-input {
+    padding: 0.75rem;
+    font-size: 0.9375rem;
+  }
+  
+  .validation-icon {
+    right: 0.75rem;
+    font-size: 1rem;
+  }
+  
+  .form-input.valid {
+    padding-right: 2.5rem;
+  }
+  
+  .error-message,
+  .field-hint {
+    font-size: 0.75rem;
+  }
+  
+  /* Ensure error messages are visible on mobile */
+  .error-message {
+    color: #dc2626 !important;
+    font-weight: 600 !important;
+    background: transparent !important;
+  }
+}
+
+/* Universal error message visibility override - highest priority */
+html body * .error-message,
+html body div.error-message,
+html body .form-group .error-message,
+html body .card .error-message {
+  color: #b91c1c !important;
+  background-color: transparent !important;
+  text-shadow: none !important;
+  opacity: 1 !important;
+  font-weight: 600 !important;
+  visibility: visible !important;
+  display: block !important;
 }

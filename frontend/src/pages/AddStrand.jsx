@@ -13,6 +13,9 @@ function AddStrand() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [fetchError, setFetchError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [validFields, setValidFields] = useState({});
+  const [touched, setTouched] = useState({});
 
   useEffect(() => {
     fetchThread();
@@ -28,17 +31,104 @@ function AddStrand() {
     }
   };
 
+  const validateField = (name, value) => {
+    const errors = {};
+    const valid = {};
+
+    switch (name) {
+      case 'contributorName':
+        if (!value.trim()) {
+          errors.contributorName = 'Your name is required';
+        } else if (value.trim().length < 2) {
+          errors.contributorName = 'Name must be at least 2 characters long';
+        } else if (value.length > 100) {
+          errors.contributorName = 'Name must be less than 100 characters';
+        } else {
+          valid.contributorName = true;
+        }
+        break;
+      case 'content':
+        if (!value.trim()) {
+          errors.content = 'Your story is required';
+        } else if (value.trim().length < 50) {
+          errors.content = 'Story must be at least 50 characters long to provide meaningful content';
+        } else if (value.length > 2000) {
+          errors.content = 'Story must be less than 2000 characters';
+        } else {
+          valid.content = true;
+        }
+        break;
+    }
+
+    return { errors, valid };
+  };
+
   const handleChange = (e) => {
+    const { name, value } = e.target;
+    
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: value
     });
+
+    // Real-time validation
+    if (touched[name]) {
+      const { errors, valid } = validateField(name, value);
+      
+      setFieldErrors(prev => ({
+        ...prev,
+        [name]: errors[name]
+      }));
+      
+      setValidFields(prev => ({
+        ...prev,
+        [name]: valid[name] || false
+      }));
+    }
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    setTouched(prev => ({ ...prev, [name]: true }));
+    
+    const { errors, valid } = validateField(name, value);
+    
+    setFieldErrors(prev => ({
+      ...prev,
+      [name]: errors[name]
+    }));
+    
+    setValidFields(prev => ({
+      ...prev,
+      [name]: valid[name] || false
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+
+    // Validate all fields before submission
+    const allErrors = {};
+    const allValid = {};
+    
+    Object.keys(formData).forEach(fieldName => {
+      const { errors, valid } = validateField(fieldName, formData[fieldName]);
+      if (errors[fieldName]) allErrors[fieldName] = errors[fieldName];
+      if (valid[fieldName]) allValid[fieldName] = valid[fieldName];
+    });
+
+    setFieldErrors(allErrors);
+    setValidFields(allValid);
+    setTouched({ contributorName: true, content: true });
+
+    // Check if there are any errors
+    if (Object.keys(allErrors).length > 0) {
+      setLoading(false);
+      setError('Please fix the errors below before submitting.');
+      return;
+    }
 
     try {
       await axios.post('/api/strands', {
@@ -98,32 +188,47 @@ function AddStrand() {
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="contributorName">Your Name *</label>
-            <input
-              type="text"
-              id="contributorName"
-              name="contributorName"
-              value={formData.contributorName}
-              onChange={handleChange}
-              placeholder="How would you like to be identified?"
-              required
-              maxLength="100"
-            />
+            <div className="input-container">
+              <input
+                type="text"
+                id="contributorName"
+                name="contributorName"
+                value={formData.contributorName}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                placeholder="Enter the name you'd like to share your story under (e.g., Sarah, Anonymous, S.M.)"
+                required
+                maxLength="100"
+                className={`form-input ${fieldErrors.contributorName ? 'error' : ''} ${validFields.contributorName ? 'valid' : ''}`}
+              />
+              {validFields.contributorName && <div className="validation-icon valid">✓</div>}
+            </div>
+            {fieldErrors.contributorName && <div className="error-message">{fieldErrors.contributorName}</div>}
+            <small className="field-hint">
+              {formData.contributorName.length}/100 characters • This is how your name will appear with your story
+            </small>
           </div>
 
           <div className="form-group">
             <label htmlFor="content">Your Story *</label>
-            <textarea
-              id="content"
-              name="content"
-              value={formData.content}
-              onChange={handleChange}
-              placeholder="Share your experience, wisdom, or perspective on this topic..."
-              required
-              maxLength="2000"
-              rows="8"
-            />
-            <small style={{ color: '#666', display: 'block', marginTop: '0.5rem' }}>
-              {2000 - formData.content.length} characters remaining
+            <div className="input-container">
+              <textarea
+                id="content"
+                name="content"
+                value={formData.content}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                placeholder="Share your personal experience, what you learned, how it changed you, or wisdom you gained. Be authentic and specific - your story could inspire or help someone facing a similar situation."
+                required
+                maxLength="2000"
+                rows="8"
+                className={`form-input ${fieldErrors.content ? 'error' : ''} ${validFields.content ? 'valid' : ''}`}
+              />
+              {validFields.content && <div className="validation-icon valid">✓</div>}
+            </div>
+            {fieldErrors.content && <div className="error-message">{fieldErrors.content}</div>}
+            <small className="field-hint">
+              {formData.content.length}/2000 characters • Share enough detail to make your story meaningful and helpful to others
             </small>
           </div>
 
